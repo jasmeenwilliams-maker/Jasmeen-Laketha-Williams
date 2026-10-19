@@ -1,0 +1,8 @@
+{
+  "name": "SouthernWell Client Handbook & Family Hub",
+  "description": "Official SouthernWell Case Management Services client and family handbook, care coordination portal, appointment preparation builder, and South Mississippi healthcare navigation guide.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

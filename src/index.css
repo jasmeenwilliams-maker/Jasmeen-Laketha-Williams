@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+  --color-olive: #556B2F;
+  --color-olive-50: #f5f7f0;
+  --color-olive-100: #e7ecdb;
+  --color-olive-700: #435525;
+  --color-olive-800: #35431d;
+  --color-olive-900: #2c3718;
+
+  --color-rose: #C71585;
+  --color-rose-50: #fdf2f8;
+  --color-rose-100: #fce7f3;
+  --color-rose-700: #a3106d;
+  --color-rose-800: #831057;
+
+  --color-sage: #8A9A86;
+  --color-sage-50: #f4f6f4;
+  --color-sage-100: #e5eae4;
+  --color-sage-200: #cbd5c9;
+  --color-sage-500: #8A9A86;
+
+  --color-cream: #FDFBF7;
+
+  --color-pecan: #4A3B32;
+  --color-pecan-600: #5c493e;
+  --color-pecan-700: #4A3B32;
+  --color-pecan-800: #382c25;
+  --color-pecan-900: #281f1a;
+
+  --color-swteal: #1a6b68;
+  --color-swteal-light: #e6f3f2;
+  --color-swteal-dark: #124e4b;
+
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+}
+
+:root {
+  --sw-teal: #1a6b68;
+  --sw-teal-dark: #124e4b;
+  --sw-teal-light: #e6f3f2;
+  --sw-sage: #8A9A86;
+  --sw-olive: #556B2F;
+  --sw-warm: #FAF8F5;
+  --sw-cream: #FDFBF7;
+  --sw-pecan: #4A3B32;
+}
+
+body {
+  background-color: #F4F6F3;
+  color: #4A3B32;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+.handbook-page {
+  background-color: #FDFBF7;
+  box-shadow: 0 10px 35px -5px rgba(74, 59, 50, 0.08), 0 0 1px 1px rgba(138, 154, 134, 0.2);
+}
+
+@media print {
+  body {
+    background: #FDFBF7 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .handbook-page,
+  .document-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+}
