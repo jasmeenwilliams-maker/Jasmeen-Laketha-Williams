@@ -39,7 +39,11 @@ import {
   Layers,
   Shield,
   Package,
-  CreditCard
+  CreditCard,
+  QrCode,
+  FileSpreadsheet,
+  Rocket,
+  Heart
 } from 'lucide-react';
 import { ClientRecord, OperationsTask, MedicationItem, Appointment, ClientProfile } from '../types';
 import { INITIAL_OPERATIONS_TASKS } from '../data/mockData';
@@ -56,6 +60,9 @@ interface OperationsHubScreenProps {
   onUpdateAppointment?: (clientId: string, apt: Appointment) => void;
   onUpdateClient?: (clientId: string, updated: Partial<ClientProfile>) => void;
   onDeleteClient?: (clientId: string) => void;
+  onOpenQRModalForClient?: (clientId: string) => void;
+  onOpenGoogleSheet?: () => void;
+  onOpenGoLive?: () => void;
 }
 
 type OpsSubTab = 'overview' | 'roster' | 'tasks' | 'medications' | 'billing' | 'audit';
@@ -78,6 +85,9 @@ export const OperationsHubScreen: React.FC<OperationsHubScreenProps> = ({
   onUpdateAppointment,
   onUpdateClient,
   onDeleteClient,
+  onOpenQRModalForClient,
+  onOpenGoogleSheet,
+  onOpenGoLive,
 }) => {
   const [activeTab, setActiveTab] = useState<OpsSubTab>('overview');
   const [tasks, setTasks] = useState<OperationsTask[]>(INITIAL_OPERATIONS_TASKS);
@@ -133,7 +143,7 @@ export const OperationsHubScreen: React.FC<OperationsHubScreenProps> = ({
 
   // Audit state checklist (SOP 3.4 Standards)
   const [auditItems, setAuditItems] = useState([
-    { id: 'sop-1', code: 'SOP 3.4.1', title: '5-Day Initial Intake & In-Home Assessment Completed', verified: true, date: 'Oct 18, 2026', authority: 'Sarah Jenkins, CSA®' },
+    { id: 'sop-1', code: 'SOP 3.4.1', title: '5-Day Initial Intake & In-Home Assessment Completed', verified: true, date: 'Oct 18, 2026', authority: 'Jasmeen Williams, LPN, BS-HHS' },
     { id: 'sop-2', code: 'SOP 3.4.2', title: 'Client Rights & Digital Handbook Acknowledgment on File', verified: false, date: 'Pending Clara Mae Holloway', authority: 'Family Liaison' },
     { id: 'sop-3', code: 'SOP 3.4.3', title: '30-Day Medication Reconciliation & Allergy Safety Review', verified: true, date: 'Oct 15, 2026', authority: 'Clinical Advisory' },
     { id: 'sop-4', code: 'SOP 3.4.4', title: 'Clinical Visit Preparation & Transportation 48-Hour Confirmation', verified: true, date: 'Oct 20, 2026', authority: 'Transit Coordinator' },
@@ -235,7 +245,7 @@ export const OperationsHubScreen: React.FC<OperationsHubScreenProps> = ({
       title: newTaskTitle.trim(),
       category: newTaskCategory,
       priority: newTaskPriority,
-      assignedCoordinator: clientRec?.client.careCoordinator.name || 'Sarah Jenkins, CSA®',
+      assignedCoordinator: clientRec?.client.careCoordinator.name || 'Jasmeen Williams, LPN, BS-HHS',
       dueDate: newTaskDueDate,
       status: 'pending',
       notes: newTaskNotes.trim() || undefined,
@@ -392,6 +402,26 @@ export const OperationsHubScreen: React.FC<OperationsHubScreenProps> = ({
 
           {/* Quick Hub Controls */}
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            {onOpenGoLive && (
+              <button
+                onClick={onOpenGoLive}
+                className="px-3.5 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/40 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer backdrop-blur-md"
+                title="Launch & Go-Live Readiness Center"
+              >
+                <Rocket className="w-4 h-4 text-amber-300" />
+                <span>Go-Live Center</span>
+              </button>
+            )}
+            {onOpenGoogleSheet && (
+              <button
+                onClick={onOpenGoogleSheet}
+                className="px-3.5 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer backdrop-blur-md"
+                title="Open Connected Google Sheet Master"
+              >
+                <FileSpreadsheet className="w-4 h-4 text-emerald-300" />
+                <span>Google Sheet</span>
+              </button>
+            )}
             <button
               onClick={() => setIsAddTaskModalOpen(true)}
               className="px-4 py-2.5 rounded-xl bg-[#1a6b68] hover:bg-[#155755] text-white font-bold text-xs flex items-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer border border-white/20"
@@ -972,29 +1002,44 @@ export const OperationsHubScreen: React.FC<OperationsHubScreenProps> = ({
                   <div className="p-3.5 rounded-2xl border border-olive/30 bg-olive-50/50">
                     <div className="flex items-start justify-between">
                       <div>
-                        <span className="font-bold text-sm text-pecan-900 block">Sarah Jenkins, CSA®</span>
-                        <span className="text-xs text-pecan-600 block">Board Certified Patient Advocate</span>
+                        <span className="font-bold text-sm text-pecan-900 block">Jasmeen Williams, LPN, BS-HHS</span>
+                        <span className="text-xs text-pecan-600 block">Owner & Care Coordinator</span>
                         <span className="text-[11px] text-olive font-semibold block mt-1">
-                          Primary Advocate · Forrest & Lamar Counties
+                          Pine Belt Lead · Forrest, Lamar, Jones & Stone Counties (601-554-6067)
                         </span>
                       </div>
                       <span className="text-xs px-2.5 py-1 rounded-full bg-olive text-white font-bold">
-                        Active
+                        Active Lead
                       </span>
                     </div>
                     <div className="mt-3 pt-2.5 border-t border-olive/10 flex items-center justify-between text-[11px] text-pecan-700">
                       <span>Caseload: {totalClients} seniors</span>
-                      <span className="font-bold text-emerald-800">100% SLA Compliant</span>
+                      <span className="font-bold text-emerald-800">100% SOP Rev 2 Compliant</span>
                     </div>
                   </div>
 
                   <div className="p-3.5 rounded-2xl border border-sage-200 bg-white">
                     <div className="flex items-start justify-between">
                       <div>
-                        <span className="font-bold text-sm text-pecan-900 block">Marcus Vance, MSW, LCSW</span>
-                        <span className="text-xs text-pecan-600 block">Senior Healthcare Social Worker</span>
+                        <span className="font-bold text-sm text-pecan-900 block">Consulting RN Reviewer</span>
+                        <span className="text-xs text-pecan-600 block">RN, BSN, CCM · Clinical Advisory Consultant</span>
                         <span className="text-[11px] text-pecan-600 block mt-1">
-                          Jones County Complex Transitions & Ethics
+                          Monthly Quality & Non-Clinical Documentation Audits
+                        </span>
+                      </div>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-bold border border-emerald-200">
+                        Monthly Retainer
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl border border-sage-200 bg-white">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="font-bold text-sm text-pecan-900 block">Consulting LCSW</span>
+                        <span className="text-xs text-pecan-600 block">Family Support & Psychosocial Specialist</span>
+                        <span className="text-[11px] text-pecan-600 block mt-1">
+                          Independent Complex Care Navigation & Caregiver Mediation
                         </span>
                       </div>
                       <span className="text-xs px-2 py-0.5 rounded-full bg-sage-100 text-pecan-700 font-semibold">
@@ -1007,7 +1052,7 @@ export const OperationsHubScreen: React.FC<OperationsHubScreenProps> = ({
 
               <div className="mt-4 p-3 rounded-2xl bg-sage-50 border border-sage-200/80 text-xs text-pecan-700">
                 <span className="font-bold block text-pecan-900 mb-0.5">Clinical Scope Notice:</span>
-                Non-clinical case management strictly follows Mississippi SOP 3.4. All medical inquiries deferred to licensed physicians.
+                Non-clinical case management strictly follows SouthernWell SOP Revision 2 (18 Procedures). All medical diagnoses and therapy are deferred to licensed healthcare providers.
               </div>
             </div>
 
@@ -1267,6 +1312,19 @@ export const OperationsHubScreen: React.FC<OperationsHubScreenProps> = ({
                           <span>Meds</span>
                         </button>
 
+                        {/* Assigned Patient QR Code Pass Button */}
+                        <button
+                          onClick={() => {
+                            onSelectClient(client.id);
+                            if (onOpenQRModalForClient) onOpenQRModalForClient(client.id);
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-olive-50 hover:bg-olive-100 text-olive font-bold border border-olive/30 transition-colors cursor-pointer flex items-center gap-1"
+                          title="View & Print Assigned QR Code Pass"
+                        >
+                          <QrCode className="w-3.5 h-3.5" />
+                          <span>QR Pass</span>
+                        </button>
+
                         {/* Edit Client Button */}
                         <button
                           onClick={() => handleOpenEditClient(client)}
@@ -1287,8 +1345,13 @@ export const OperationsHubScreen: React.FC<OperationsHubScreenProps> = ({
                         </button>
                       </div>
 
-                      <button
-                        onClick={() => onSelectClient(client.id)}
+                      <div className="flex items-center gap-2">
+                        <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
+                          <FileSpreadsheet className="w-3 h-3 text-emerald-700" />
+                          <span>Sheet Synced</span>
+                        </span>
+                        <button
+                          onClick={() => onSelectClient(client.id)}
                         className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5 ${
                           isSelected
                             ? 'bg-[#1a6b68] text-white'
@@ -1300,8 +1363,9 @@ export const OperationsHubScreen: React.FC<OperationsHubScreenProps> = ({
                       </button>
                     </div>
                   </div>
-                );
-              })
+                </div>
+              );
+            })
             )}
           </div>
 
@@ -1645,6 +1709,36 @@ export const OperationsHubScreen: React.FC<OperationsHubScreenProps> = ({
                 </strong>
               </div>
             </div>
+          </div>
+
+          {/* The Granny Doris Porch Fund Community Scholarship Management */}
+          <div className="bg-rose-50/70 rounded-3xl p-6 border border-rose-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs">
+            <div className="flex items-start gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 border border-rose-300 flex items-center justify-center shrink-0 text-rose-600">
+                <Heart className="w-6 h-6 fill-rose-300" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-serif text-lg font-bold text-rose-950">
+                    The Granny Doris Porch Fund
+                  </h3>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-200 text-rose-900 border border-rose-300">
+                    Pine Belt Scholarship
+                  </span>
+                </div>
+                <p className="text-rose-900 leading-relaxed max-w-2xl text-xs">
+                  “When a neighbor needs help, we make room on the porch.” SouthernWell provides <strong>100% free care coordination</strong> for clients living below the poverty line, and <strong>50% off monthly packages</strong> after their first 6 months. Review the official 8.5 x 11 flyer, process partner church nominations, and monitor community grant distributions.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => onNavigateToScreen('porchfund')}
+              className="shrink-0 px-4 py-2.5 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
+            >
+              <Heart className="w-4 h-4 fill-rose-200" />
+              <span>Open Porch Fund & Flyer</span>
+            </button>
           </div>
 
           {/* Client Plan Table */}

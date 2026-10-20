@@ -155,13 +155,15 @@ export const SDOH_DOMAIN_LABELS: Record<string, string> = {
 };
 
 export function createDefaultFormsPacket(client: ClientProfile): FormsPacketData {
-  const isEleanor = client.id.includes('084');
-  const isClara = client.id.includes('105');
-  const isThomas = client.id.includes('108');
+  const clientInitials = client.signerName 
+    ? client.signerName.split(' ').map(n => n[0]).join('').slice(0, 3).toUpperCase()
+    : client.name 
+    ? client.name.split(' ').map(n => n[0]).join('').slice(0, 3).toUpperCase()
+    : 'SW';
 
   const form01: Form01Data = {
-    date: client.enrolledDate || 'October 12, 2026',
-    time: '10:30 AM',
+    date: client.enrolledDate || 'Active Production',
+    time: '09:00 AM',
     takenBy: 'Jasmeen Williams, LPN, BS-HHS',
     callerName: client.representativeName || client.name,
     relationshipToClient: client.representativeRelation || 'Self',
@@ -169,30 +171,25 @@ export function createDefaultFormsPacket(client: ClientProfile): FormsPacketData
     clientName: client.name,
     bestTimeToCall: 'Mornings (9:00 AM – 11:30 AM)',
     county: client.county,
-    howHeard: isEleanor 
-      ? ['Rural health center / clinic', 'Friend or family'] 
-      : isClara 
-      ? ['Church', 'Current client referral'] 
-      : ['Social worker / provider'],
-    referredBy: isEleanor ? 'Hattiesburg Clinic Social Services' : 'Community Pastor Henderson',
+    howHeard: ['Rural health center / clinic', 'Community referral'],
+    referredBy: 'Self / Community Healthcare Referral',
     supportNeeded: [
       'Appointment support',
       'Medication reminders',
       'Chronic condition support',
-      'Transportation',
-      'Family updates'
+      'Transportation'
     ],
-    doctorClinic: isEleanor ? 'Dr. Raymond Thornton, MD (Pine Grove Cardiology)' : 'Hattiesburg Community Clinic',
+    doctorClinic: 'Primary Care Physician / Local Clinic',
     decisionMaker: client.representativeName ? `${client.representativeName} (${client.representativeRelation})` : 'Client',
     starNotes: {
-      situation: `Client is a ${client.dob}-born senior living in ${client.county} managing ${client.conditions.slice(0, 2).join(' & ')}. Family sought non-clinical support to prevent hospital readmissions.`,
-      task: 'Family wants reliable ride coordination to Hattiesburg clinic visits, medication schedule organization, and weekly check-in updates.',
-      action: 'Explained SouthernWell non-clinical navigation boundaries, 24-hr post-doctor debriefs, and coordination with local transportation.',
-      result: 'Caller enthusiastic. Agreed to proceed with Scope review and send enrollment packet.'
+      situation: `Client is a resident of ${client.county} seeking non-clinical care management and family communication.`,
+      task: 'Provide routine check-ins, clinic appointment accompaniment, and medication schedule organization.',
+      action: 'Explained SouthernWell non-clinical navigation boundaries, post-doctor debriefs, and care coordination.',
+      result: 'Enrolled under SouthernWell SOP Rev 2 Standards.'
     },
-    outcome: 'Packet to be sent',
-    packageOfInterest: 'Signature Care Navigation ($225/mo)',
-    nextStepDate: 'Welcome call & Intake Form 02'
+    outcome: 'Enrolled / Active',
+    packageOfInterest: 'Signature Care Navigation ($325/mo)',
+    nextStepDate: 'Initial assessment & service coordination'
   };
 
   const form02: Form02Data = {
@@ -211,7 +208,7 @@ export function createDefaultFormsPacket(client: ClientProfile): FormsPacketData
       item8: true, // has PCP
     },
     decision: 'Accept for enrollment',
-    reasonReferral: 'Client meets all South Mississippi service territory requirements; non-clinical care management aligns with client goals.',
+    reasonReferral: 'Client meets Pine Belt service territory criteria for non-clinical care management.',
     reviewedBy: 'Jasmeen Williams, LPN, BS-HHS',
     reviewDate: client.enrolledDate
   };
@@ -219,18 +216,18 @@ export function createDefaultFormsPacket(client: ClientProfile): FormsPacketData
   const form03: Form03Data = {
     clientName: client.name,
     dob: client.dob,
-    packageSelected: isClara ? 'Essentials' : isThomas ? 'Concierge' : 'Signature',
+    packageSelected: 'Signature',
     addOnsSelected: 'Medication Concierge & Escorted Clinic Transportation',
     startDate: client.enrolledDate,
-    monthlyFee: isClara ? '$150/mo' : isThomas ? '$300/mo' : '$225/mo',
+    monthlyFee: '$325/mo',
     noticeDays: 30,
     clientSignatureName: client.signerName || client.name,
-    clientSignatureDate: client.signatureDate || 'Oct 24, 2026',
+    clientSignatureDate: client.signatureDate || '',
     representativeName: client.representativeName,
     representativeRelation: client.representativeRelation,
-    representativeSignatureDate: client.signatureDate || 'Oct 24, 2026',
+    representativeSignatureDate: client.signatureDate || '',
     coordinatorSignatureName: 'Jasmeen Williams, LPN, BS-HHS',
-    coordinatorSignatureDate: client.signatureDate || 'Oct 24, 2026',
+    coordinatorSignatureDate: client.signatureDate || '',
     isSigned: client.acknowledgmentSigned
   };
 
@@ -239,36 +236,24 @@ export function createDefaultFormsPacket(client: ClientProfile): FormsPacketData
     dob: client.dob,
     providers: [
       {
-        name: isEleanor ? 'Pine Grove Cardiology / Dr. Raymond Thornton' : 'Hattiesburg Medical Clinic',
+        name: 'Primary Care Clinic / Physician',
         role: 'Primary Care Provider',
-        phoneFax: '601-582-4000 / Fax: 601-582-4001',
+        phoneFax: '601-554-6067',
         canShare: true,
       },
       {
-        name: 'Southern Eye Center / Dr. Claire Montgomery',
-        role: 'Specialist (Optometry)',
-        phoneFax: '601-544-3937',
-        canShare: true,
-      },
-      {
-        name: 'Walgreens Pharmacy #1044 (Hardy St)',
+        name: 'Designated Local Pharmacy',
         role: 'Pharmacist / Pharmacy',
-        phoneFax: '601-268-3180',
-        canShare: true,
-      },
-      {
-        name: 'Coast Transit Authority (CareVan Service)',
-        role: 'Transportation Partner',
-        phoneFax: '228-896-8080',
+        phoneFax: '601-554-6067',
         canShare: true,
       }
     ],
-    mentalHealthInitials: client.signerName ? client.signerName.slice(0, 2).toUpperCase() : 'EMW',
-    expirationDate: 'October 24, 2027',
+    mentalHealthInitials: clientInitials,
+    expirationDate: 'One Year from Enrollment',
     clientSignatureName: client.signerName || client.name,
-    clientSignatureDate: client.signatureDate || 'Oct 24, 2026',
+    clientSignatureDate: client.signatureDate || '',
     witnessSignatureName: 'Jasmeen Williams, LPN, BS-HHS',
-    witnessSignatureDate: client.signatureDate || 'Oct 24, 2026'
+    witnessSignatureDate: client.signatureDate || ''
   };
 
   const form05: Form05Data = {
@@ -276,18 +261,11 @@ export function createDefaultFormsPacket(client: ClientProfile): FormsPacketData
     dob: client.dob,
     contacts: [
       {
-        name: client.representativeName || 'Dorothy Woods Miller',
-        relationship: client.representativeRelation || 'Daughter / Proxy',
-        phone: '601-582-4190',
+        name: client.representativeName || (client.name ? `${client.name} Family Contact` : 'Primary Family Contact'),
+        relationship: client.representativeRelation || 'Designated Healthcare Proxy',
+        phone: client.phone || '601-554-6067',
         okLeaveMessage: true,
         role: 'Primary family decision maker & contact',
-      },
-      {
-        name: 'Marcus Woods',
-        relationship: 'Son (Atlanta, GA)',
-        phone: '404-555-0194',
-        okLeaveMessage: true,
-        role: 'Secondary contact for monthly email summary',
       }
     ],
     whatMayBeShared: [
@@ -302,32 +280,32 @@ export function createDefaultFormsPacket(client: ClientProfile): FormsPacketData
     howDelivery: ['Phone call', 'Text message'],
     howOften: 'Weekly',
     doNotShareWith: 'None noted',
-    specialInstructions: 'Text Dorothy first prior to calling during work hours (8 AM - 4 PM).',
+    specialInstructions: 'Contact primary family proxy for care updates.',
     clientSignatureName: client.signerName || client.name,
-    clientSignatureDate: client.signatureDate || 'Oct 24, 2026',
+    clientSignatureDate: client.signatureDate || '',
     coordinatorSignatureName: 'Jasmeen Williams, LPN, BS-HHS',
-    coordinatorSignatureDate: client.signatureDate || 'Oct 24, 2026'
+    coordinatorSignatureDate: client.signatureDate || ''
   };
 
   const form06: Form06Data = {
     clientName: client.name,
     dob: client.dob,
-    referralDate: 'October 18, 2026',
-    referredTo: 'Pine Belt Counseling Associates (LCSW Clinic)',
-    lcswPhone: '601-545-3668',
-    reasons: ['Coping with chronic illness', 'Family or caregiver stress'],
+    referralDate: client.enrolledDate,
+    referredTo: 'Pine Belt Regional Counseling & Behavioral Health',
+    lcswPhone: '601-544-4641',
+    reasons: ['Caregiver support', 'Community adjustment'],
     initials: {
-      clinical: 'EMW',
-      independent: 'EMW',
-      scheduling: 'EMW',
-      noClinicalRole: 'EMW',
-      suggestion: 'EMW'
+      clinical: clientInitials,
+      independent: clientInitials,
+      scheduling: clientInitials,
+      noClinicalRole: clientInitials,
+      suggestion: clientInitials
     },
     infoSharing: 'name_phone_only',
     clientSignatureName: client.signerName || client.name,
-    clientSignatureDate: 'Oct 24, 2026',
+    clientSignatureDate: client.signatureDate || '',
     coordinatorSignatureName: 'Jasmeen Williams, LPN, BS-HHS',
-    coordinatorSignatureDate: 'Oct 24, 2026'
+    coordinatorSignatureDate: client.signatureDate || ''
   };
 
   const form07: Form07Data = {
@@ -338,15 +316,15 @@ export function createDefaultFormsPacket(client: ClientProfile): FormsPacketData
     numberInHousehold: 1,
     numberCaregivers: 1,
     packageRequested: 'Signature',
-    circumstances: ['Fixed income', 'High medical costs'],
-    monthlyIncomeRange: '$1,500 – $2,200 (Social Security + Pension)',
-    narrativeSituation: 'Client lives independently on fixed retirement income with ongoing copays for cardiology and diabetic testing supplies.',
+    circumstances: ['Fixed income'],
+    monthlyIncomeRange: 'Fixed Income / Social Security',
+    narrativeSituation: 'Standard sliding scale evaluation per SouthernWell policy.',
     clientStatementConfirmed: true,
     clientSignatureName: client.signerName || client.name,
-    clientSignatureDate: client.signatureDate || 'Oct 24, 2026',
+    clientSignatureDate: client.signatureDate || '',
     forSouthernWellUse: {
-      approvedRate: '$185/mo',
-      reviewDate: 'October 25, 2026',
+      approvedRate: '$325/mo',
+      reviewDate: client.enrolledDate,
       decision: 'approved',
       reviewedBy: 'Jasmeen Williams, LPN, BS-HHS'
     }
@@ -358,36 +336,21 @@ export function createDefaultFormsPacket(client: ClientProfile): FormsPacketData
     date: client.enrolledDate,
     completedBy: 'Jasmeen Williams, LPN, BS-HHS',
     areas: {
-      housing: { rating: 'No need', notes: 'Single-story home in Hattiesburg, no steep stairs' },
-      food: { rating: 'Some need', notes: 'Needs low-sodium meal support; daughter assists on weekends' },
-      utilities: { rating: 'No need', notes: 'Stable electric, water, phone' },
-      transportation: { rating: 'Needs help', notes: 'Does not drive; requires door-through-door ride coordination for clinics' },
-      medication: { rating: 'Some need', notes: 'Insulin pen and blood pressure medication coordination needed' },
-      healthcareAccess: { rating: 'No need', notes: 'Established with primary care and cardiology' },
-      caregiverSupport: { rating: 'Some need', notes: 'Daughter provides strong support but works full-time' },
-      socialConnection: { rating: 'Some need', notes: 'Enjoys church and porch fellowship; occasional loneliness during weekdays' },
-      safety: { rating: 'No need', notes: 'Safe neighborhood, grab bars installed in shower' },
-      financialStrain: { rating: 'Some need', notes: 'Copays can be burdensome; requested sliding scale consideration' },
-      phoneInternet: { rating: 'No need', notes: 'Active cellular phone with large buttons' },
-      adlSupport: { rating: 'No need', notes: 'Independent with bathing, grooming, and light dressing' },
-      healthLiteracy: { rating: 'Some need', notes: 'Benefits from written summary and bulleted doctor questions' },
+      housing: { rating: 'No need', notes: 'Safe home environment' },
+      food: { rating: 'No need', notes: 'Adequate nutritional access' },
+      utilities: { rating: 'No need', notes: 'Stable utilities' },
+      transportation: { rating: 'Some need', notes: 'Requires clinic transportation coordination' },
+      medication: { rating: 'Some need', notes: 'Medication reminder routine requested' },
+      healthcareAccess: { rating: 'No need', notes: 'Established with local clinic' },
+      caregiverSupport: { rating: 'No need', notes: 'Family proxy engaged' },
+      socialConnection: { rating: 'No need', notes: 'Church & community fellowship' },
+      safety: { rating: 'No need', notes: 'Safe home environment' },
+      financialStrain: { rating: 'No need', notes: 'Direct-pay agreement active' },
+      phoneInternet: { rating: 'No need', notes: 'Active phone service' },
+      adlSupport: { rating: 'No need', notes: 'Independent daily mobility' },
+      healthLiteracy: { rating: 'No need', notes: 'Benefits from written debrief notes' },
     },
-    resourceReferrals: [
-      {
-        id: 'sdoh-ref-1',
-        need: 'Clinic Transportation',
-        resource: 'Coast Transit Authority CareVan Service',
-        date: '2026-10-15',
-        followUp: 'Approved for discounted medical round-trips'
-      },
-      {
-        id: 'sdoh-ref-2',
-        need: 'Nutritious Low-Sodium Meals',
-        resource: 'Pine Belt Christian Ministries Meal Box',
-        date: '2026-10-18',
-        followUp: 'Bi-weekly box arranged'
-      }
-    ],
+    resourceReferrals: [],
     reviewedBy: 'Jasmeen Williams, LPN, BS-HHS',
     reviewDate: client.enrolledDate
   };
@@ -396,61 +359,48 @@ export function createDefaultFormsPacket(client: ClientProfile): FormsPacketData
     clientName: client.name,
     dob: client.dob,
     initials: {
-      receivedHandbook: client.signerName ? client.signerName.slice(0, 2).toUpperCase() : 'EMW',
-      nonClinical: client.signerName ? client.signerName.slice(0, 2).toUpperCase() : 'EMW',
-      notEmergency: client.signerName ? client.signerName.slice(0, 2).toUpperCase() : 'EMW',
-      unableToReach: client.signerName ? client.signerName.slice(0, 2).toUpperCase() : 'EMW',
-      planCompliance: client.signerName ? client.signerName.slice(0, 2).toUpperCase() : 'EMW',
-      preferredTimes: client.signerName ? client.signerName.slice(0, 2).toUpperCase() : 'EMW',
+      receivedHandbook: clientInitials,
+      nonClinical: clientInitials,
+      notEmergency: clientInitials,
+      unableToReach: clientInitials,
+      planCompliance: clientInitials,
+      preferredTimes: clientInitials,
     },
     preferredDays: 'Tuesday & Thursday',
     preferredTimes: '10:00 AM – 11:30 AM',
     preferredMethod: 'call',
     emergencyContacts: [
       {
-        name: client.representativeName || 'Dorothy Woods Miller',
-        relationship: client.representativeRelation || 'Daughter',
-        phone: '601-582-4190',
-        altPhone: '601-582-4191',
-      },
-      {
-        name: 'Pastor Thomas Henderson',
-        relationship: 'Pastor / Church Elder',
-        phone: '601-583-1288',
+        name: client.representativeName || 'Primary Emergency Contact',
+        relationship: client.representativeRelation || 'Family Proxy',
+        phone: client.phone || '601-554-6067',
         altPhone: '',
       }
     ],
-    pcpClinic: 'Dr. Raymond Thornton, MD (Hattiesburg Clinic)',
-    pcpPhone: '601-582-4000',
-    pharmacy: 'Walgreens Pharmacy #1044',
-    pharmacyPhone: '601-268-3180',
-    preferredHospital: 'Forrest General Hospital (Hattiesburg, MS)',
-    hospitalPhone: '601-288-7000',
+    pcpClinic: 'Primary Care Clinic',
+    pcpPhone: '601-554-6067',
+    pharmacy: 'Local Pharmacy',
+    pharmacyPhone: '601-554-6067',
+    preferredHospital: 'Regional Hospital (South MS)',
+    hospitalPhone: '601-554-6067',
     clientSignatureName: client.signerName || client.name,
-    clientSignatureDate: client.signatureDate || 'Oct 24, 2026',
+    clientSignatureDate: client.signatureDate || '',
     coordinatorSignatureName: 'Jasmeen Williams, LPN, BS-HHS',
-    coordinatorSignatureDate: client.signatureDate || 'Oct 24, 2026'
+    coordinatorSignatureDate: client.signatureDate || ''
   };
 
   const form10: Form10Data = {
     clientName: client.name,
     dob: client.dob,
     planDate: client.enrolledDate,
-    nextReviewDate: 'January 15, 2027',
+    nextReviewDate: 'Quarterly Review',
     recipients: [
       {
-        name: client.representativeName || 'Dorothy Woods Miller',
-        relationship: 'Daughter / Proxy',
+        name: client.representativeName || 'Designated Family Proxy',
+        relationship: client.representativeRelation || 'Family Proxy',
         topics: 'Clinic appointment outcomes, ride confirmations, medication refill reminders',
-        howOften: 'Weekly (Tuesdays)',
+        howOften: 'Weekly',
         method: 'Phone & Text'
-      },
-      {
-        name: 'Marcus Woods',
-        relationship: 'Son (Remote)',
-        topics: 'Monthly care coordination summary and physician debrief notes',
-        howOften: 'Monthly',
-        method: 'Email'
       }
     ],
     contactTriggers: [
@@ -460,48 +410,35 @@ export function createDefaultFormsPacket(client: ClientProfile): FormsPacketData
       'Medication change or problem reported',
       'Safety concern at home'
     ],
-    specialInstructions: 'Contact Dorothy immediately if client reports dizziness or morning blood pressure over 140/90.',
+    specialInstructions: 'Contact designated proxy in case of routine schedule changes.',
     clientSignatureName: client.signerName || client.name,
-    clientSignatureDate: client.signatureDate || 'Oct 24, 2026',
+    clientSignatureDate: client.signatureDate || '',
     coordinatorSignatureName: 'Jasmeen Williams, LPN, BS-HHS',
-    coordinatorSignatureDate: client.signatureDate || 'Oct 24, 2026'
+    coordinatorSignatureDate: client.signatureDate || ''
   };
 
   const form11: Form11Data = {
-    id: `inc-${client.id}-01`,
-    dateOfIncident: '2026-10-14',
-    time: '2:15 PM',
-    location: 'Client Home (Front Porch / Living Area)',
+    id: `inc-${client.id}-clean`,
+    dateOfIncident: '',
+    time: '',
+    location: '',
     clientName: client.name,
     reportedBy: 'Jasmeen Williams, LPN, BS-HHS',
-    dateReported: '2026-10-14',
-    incidentTypes: ['Fall or injury reported'],
+    dateReported: '',
+    incidentTypes: [],
     starNotes: {
-      situation: 'During routine afternoon check-in call, client reported slipping on a damp welcome mat while stepping onto front porch at 11:30 AM.',
-      task: 'Verify client safety, assess if urgent clinical attention is required, and notify designated family contact per Form 10 protocol.',
-      action: 'Client confirmed no head impact, no loss of consciousness, and no severe pain. Guided client to rest in recliner with ice pack on mild left wrist scrape. Called daughter Dorothy immediately. Advised primary care contact if soreness persists.',
-      result: 'Daughter arrived within 30 minutes to inspect wrist and confirmed no swelling. Follow-up call next morning at 9:00 AM showed client resting comfortably with normal vitals.'
+      situation: '',
+      task: '',
+      action: '',
+      result: ''
     },
-    notifications: [
-      {
-        personOrAgency: 'Dorothy Woods Miller (Daughter)',
-        dateTime: '2026-10-14 2:25 PM',
-        method: 'Direct Phone Call',
-        response: 'Acknowledged immediately; came home to check on mother.'
-      },
-      {
-        personOrAgency: 'Dr. Raymond Thornton Clinic (FYI Note)',
-        dateTime: '2026-10-14 3:10 PM',
-        method: 'Secure Portal Message',
-        response: 'Received; added to chart for next scheduled visit.'
-      }
-    ],
-    notifiedCheckboxes: ['Family', 'Provider'],
-    followUpPlan: 'Replace porch mat with high-traction non-slip rubber backing. Verified during next home visit on Oct 19.',
+    notifications: [],
+    notifiedCheckboxes: [],
+    followUpPlan: '',
     completedBy: 'Jasmeen Williams, LPN, BS-HHS',
-    completedDate: '2026-10-14',
-    rnAdvisoryReview: 'Reviewed by Consulting RN - Non-clinical protocol properly executed. No clinical triage breached.',
-    rnReviewDate: '2026-10-15'
+    completedDate: '',
+    rnAdvisoryReview: '',
+    rnReviewDate: ''
   };
 
   return {

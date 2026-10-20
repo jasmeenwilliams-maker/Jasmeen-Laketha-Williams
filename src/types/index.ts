@@ -21,6 +21,11 @@ export interface ClientProfile {
   signerName?: string;
   preferredCommunication: 'phone' | 'text' | 'email' | 'virtual';
   conditions: string[];
+  qrPortalUrl?: string;
+  googleSheetSynced?: boolean;
+  googleSheetSyncedAt?: string;
+  gate1Status?: 'verified' | 'pending';
+  gate2Status?: 'verified' | 'pending';
 }
 
 export interface Appointment {

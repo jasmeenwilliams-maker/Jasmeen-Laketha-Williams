@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import { 
   User, 
   Phone, 
@@ -14,7 +15,12 @@ import {
   MessageSquare,
   Sparkles,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  QrCode,
+  FileSpreadsheet,
+  Copy,
+  ExternalLink,
+  Printer
 } from 'lucide-react';
 import { ClientProfile, Appointment, CoordinationLog, MedicationItem } from '../types';
 
@@ -32,6 +38,9 @@ interface CareHubScreenProps {
   onNavigateToMedSafety?: () => void;
   onNavigateToForms?: () => void;
   onNavigateToSOP?: () => void;
+  onOpenQRModal?: () => void;
+  onOpenGoogleSheet?: () => void;
+  onNavigateToPorchFund?: () => void;
 }
 
 export const CareHubScreen: React.FC<CareHubScreenProps> = ({
@@ -48,12 +57,16 @@ export const CareHubScreen: React.FC<CareHubScreenProps> = ({
   onNavigateToMedSafety,
   onNavigateToForms,
   onNavigateToSOP,
+  onOpenQRModal,
+  onOpenGoogleSheet,
+  onNavigateToPorchFund,
 }) => {
   const [showAddLogModal, setShowAddLogModal] = useState(false);
   const [newLogType, setNewLogType] = useState<CoordinationLog['type']>('Family Check-in');
   const [newLogSummary, setNewLogSummary] = useState('');
   const [newActionItem, setNewActionItem] = useState('');
   const [actionItemsList, setActionItemsList] = useState<string[]>([]);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const upcomingAppointments = appointments.filter((a) => a.status === 'upcoming');
   const nextApt = upcomingAppointments[0];
@@ -74,6 +87,17 @@ export const CareHubScreen: React.FC<CareHubScreenProps> = ({
     }
   };
 
+  const portalUrl = client.qrPortalUrl || 
+    (typeof window !== 'undefined' 
+      ? `${window.location.origin}?client=${client.id}` 
+      : `https://southernwell.org/portal?client=${client.id}`);
+
+  const handleCopyPortal = () => {
+    navigator.clipboard.writeText(portalUrl);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
+
   const handleSaveLog = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newLogSummary.trim()) return;
@@ -88,7 +112,7 @@ export const CareHubScreen: React.FC<CareHubScreenProps> = ({
       id: `log-${Date.now()}`,
       date: today,
       type: newLogType,
-      coordinator: `${client.careCoordinator.name}, CSA®`,
+      coordinator: `${client.careCoordinator.name}, ${client.careCoordinator.credential || 'LPN, BS-HHS'}`,
       summary: newLogSummary.trim(),
       actionItems: actionItemsList.length > 0 ? actionItemsList : ['Logged by client/family for coordinator review.'],
       sharedWithFamily: true,
@@ -277,6 +301,100 @@ export const CareHubScreen: React.FC<CareHubScreenProps> = ({
         </div>
       </div>
 
+      {/* Patient QR Scan Portal & Google Sheet Sync Hub Card */}
+      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-olive/30 shadow-xs relative overflow-hidden">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+          
+          <div className="flex items-start sm:items-center gap-4">
+            {/* Live QR Code rendering */}
+            <div 
+              onClick={onOpenQRModal}
+              className="p-2.5 bg-white rounded-2xl border-2 border-olive/40 shadow-xs shrink-0 cursor-pointer hover:border-olive transition-transform hover:scale-105"
+              title="Click to expand printable Refrigerator QR Card"
+            >
+              <QRCodeSVG
+                value={portalUrl}
+                size={84}
+                level="M"
+                imageSettings={{
+                  src: "https://lh3.googleusercontent.com/aida-public/AB6AXuBv-3ntWs936kOOlmlH1M1SV-oHV9Fyyx2uctfZ7xSQ_Sdha-2bObSY2f1ONF5OjE6E9ZqWdmR3K3ZCa4Skk_1VuakkjxQ-lioMiBi5ShRm5cJPhjS9N2auACpbCjV376KGAWnVkS3rV_DGxKw50Z4UzENCM5uWTXHsI9DWs9bAIiryUDEQ8cijZZ4nerueAYixp86FgKMC6-KxYVhpWKFIH1ndcknHxDCUJcLM1uBmX7-Qj5tse9QNBdd08O_-K4ExWfQ",
+                  x: undefined,
+                  y: undefined,
+                  height: 18,
+                  width: 18,
+                  excavate: true,
+                }}
+              />
+            </div>
+
+            <div>
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <span className="font-serif text-base sm:text-lg font-bold text-pecan-900">
+                  Assigned Patient QR Portal Card
+                </span>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  Live Active Pass
+                </span>
+              </div>
+              <p className="text-xs text-pecan-600 max-w-xl leading-relaxed">
+                Family members and caregivers can point any smartphone camera at this QR code to instantly access {client.name.split(' ')[0]}'s Live Handbook, Medication Reminders, and Upcoming Appointments.
+              </p>
+              <div className="flex flex-wrap items-center gap-3 mt-2 text-[11px] text-pecan-700">
+                <span className="flex items-center gap-1 font-mono text-[10px] bg-sage-50 px-2 py-0.5 rounded-md border border-sage-200">
+                  Case #{client.id}
+                </span>
+                <span className="flex items-center gap-1 text-emerald-800 font-semibold">
+                  <CheckCircle className="w-3 h-3 text-emerald-600" />
+                  Synced to Google Sheet Master Register
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 shrink-0 w-full sm:w-auto">
+            <button
+              onClick={handleCopyPortal}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-sage-50 hover:bg-sage-100 text-pecan-800 border border-sage-200 text-xs font-semibold transition-colors cursor-pointer flex-1 sm:flex-none"
+              title="Copy portal URL link"
+            >
+              {copiedLink ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="text-emerald-700">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-olive" />
+                  <span>Copy QR Link</span>
+                </>
+              )}
+            </button>
+
+            {onOpenQRModal && (
+              <button
+                onClick={onOpenQRModal}
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-olive text-white hover:bg-olive-700 text-xs font-bold transition-colors shadow-xs cursor-pointer flex-1 sm:flex-none"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span>Print Fridge Card</span>
+              </button>
+            )}
+
+            {onOpenGoogleSheet && (
+              <button
+                onClick={onOpenGoogleSheet}
+                className="inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 text-xs font-bold transition-colors cursor-pointer"
+                title="View Connected Google Sheet Master"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-700" />
+                <span className="hidden md:inline">Google Sheet</span>
+              </button>
+            )}
+          </div>
+
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left Column (2 Cols on LG): Upcoming Care & Recent Logs */}
@@ -410,7 +528,7 @@ export const CareHubScreen: React.FC<CareHubScreenProps> = ({
             </span>
             <div className="flex items-center gap-3.5 mb-4">
               <div className="w-12 h-12 rounded-2xl bg-olive text-white flex items-center justify-center font-bold text-lg">
-                SJ
+                {getInitials(client.careCoordinator.name || 'Jasmeen Williams')}
               </div>
               <div>
                 <h4 className="font-serif text-lg font-bold text-pecan-900">{client.careCoordinator.name}</h4>
@@ -447,6 +565,31 @@ export const CareHubScreen: React.FC<CareHubScreenProps> = ({
             <div className="mt-4 p-3 bg-olive-50 rounded-xl border border-olive/20 text-[11px] text-pecan-800 leading-relaxed">
               Available Monday – Friday, 8:00 AM – 5:00 PM for scheduled care coordination, provider liaison, and family check-ins.
             </div>
+          </div>
+
+          {/* The Granny Doris Porch Fund Feature Card */}
+          <div className="bg-rose-50/70 rounded-3xl p-6 border border-rose-200 shadow-xs text-xs space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
+                <Heart className="w-4 h-4 fill-rose-300" />
+              </div>
+              <div>
+                <h4 className="font-serif text-sm font-bold text-rose-950">The Granny Doris Porch Fund</h4>
+                <p className="text-[10px] text-rose-800 font-medium">Community Care Scholarships</p>
+              </div>
+            </div>
+            <p className="text-rose-900 leading-relaxed text-xs">
+              “When a neighbor needs help, we make room on the porch.” 100% free care navigation for poverty-level seniors and 50% off monthly packages.
+            </p>
+            {onNavigateToPorchFund && (
+              <button
+                onClick={onNavigateToPorchFund}
+                className="w-full py-2 px-3 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <Heart className="w-3.5 h-3.5 fill-rose-200" />
+                <span>Open Fund Flyer & Nominate</span>
+              </button>
+            )}
           </div>
 
           {/* Active Health Profile */}

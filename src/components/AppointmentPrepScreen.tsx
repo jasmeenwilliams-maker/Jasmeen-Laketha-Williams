@@ -266,7 +266,7 @@ Care Coordinator: ${client.careCoordinator.name}, CSA®${client.careCoordinator.
                 <span>💬</span> Specific Questions for Doctor
               </h3>
               <p className="text-xs text-pecan-600">
-                Coordinated with Sarah Jenkins, CSA® so you never forget what to ask.
+                Coordinated with Jasmeen Williams, LPN, BS-HHS so you never forget what to ask.
               </p>
             </div>
           </div>

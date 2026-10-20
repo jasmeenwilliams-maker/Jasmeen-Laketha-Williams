@@ -8,7 +8,8 @@ import {
   FileText, 
   ShieldCheck, 
   DollarSign, 
-  AlertCircle 
+  AlertCircle,
+  Heart
 } from 'lucide-react';
 import { InvoiceItem, ClientProfile } from '../types';
 
@@ -16,12 +17,14 @@ interface BillingScreenProps {
   client: ClientProfile;
   invoices: InvoiceItem[];
   onPayInvoice: (invoiceId: string, paymentMethod: string) => void;
+  onNavigateToPorchFund?: () => void;
 }
 
 export const BillingScreen: React.FC<BillingScreenProps> = ({
   client,
   invoices,
   onPayInvoice,
+  onNavigateToPorchFund,
 }) => {
   const [activePaymentModal, setActivePaymentModal] = useState<InvoiceItem | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'ach'>('card');
@@ -92,6 +95,38 @@ export const BillingScreen: React.FC<BillingScreenProps> = ({
           Payment is due at the time of service. <strong>SouthernWell does not bill Medicare, Medicaid, or private commercial health insurers directly.</strong> 
           Itemized routine invoices with care coordination hours can be downloaded below for personal record-keeping or FSA/HSA submission.
         </p>
+      </div>
+
+      {/* Granny Doris Porch Fund - Financial Hardship & Scholarship Assistance */}
+      <div className="bg-rose-50/70 p-5 rounded-3xl border border-rose-200 text-xs text-rose-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-rose-100 border border-rose-300 flex items-center justify-center shrink-0 mt-0.5">
+            <Heart className="w-5 h-5 text-rose-600 fill-rose-300" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="font-serif font-bold text-base text-rose-950">
+                The Granny Doris Porch Fund
+              </span>
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-200/80 text-rose-900 border border-rose-300">
+                Community Aid
+              </span>
+            </div>
+            <p className="text-rose-900 leading-relaxed text-xs max-w-2xl">
+              No one should have to choose between care and cost. SouthernWell provides <strong>100% free care coordination</strong> for neighbors living below the poverty line, and <strong>50% off monthly packages</strong> after your first 6 months.
+            </p>
+          </div>
+        </div>
+
+        {onNavigateToPorchFund && (
+          <button
+            onClick={onNavigateToPorchFund}
+            className="shrink-0 px-4 py-2.5 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
+          >
+            <Heart className="w-3.5 h-3.5 fill-rose-200" />
+            <span>View Porch Fund & Flyer</span>
+          </button>
+        )}
       </div>
 
       {/* Pending Invoices */}

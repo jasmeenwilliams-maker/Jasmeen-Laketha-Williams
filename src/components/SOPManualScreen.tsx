@@ -25,7 +25,10 @@ import {
   Info,
   Calendar,
   Lock,
-  HeartHandshake
+  HeartHandshake,
+  Download,
+  DollarSign,
+  ListOrdered
 } from 'lucide-react';
 import { MOCK_SOP_MANUAL, SOPStep, ScopeComparisonItem, EscalationTier } from '../data/mockSOPData';
 import { ScreenTab } from './Navigation';
@@ -35,7 +38,7 @@ interface SOPManualScreenProps {
   onNavigateToForm?: (formId: string) => void;
 }
 
-type SOPTab = 'overview' | 'scope' | 'workflow' | 'escalation' | 'mandatory' | 'audit' | 'ethics' | 'quiz';
+type SOPTab = 'overview' | 'sop18' | 'scope' | 'workflow' | 'pricing' | 'escalation' | 'mandatory' | 'audit' | 'ethics' | 'appendix' | 'quiz';
 
 export const SOPManualScreen: React.FC<SOPManualScreenProps> = ({
   onNavigateToScreen,
@@ -87,15 +90,18 @@ export const SOPManualScreen: React.FC<SOPManualScreenProps> = ({
     return manual.workflowSOPs.find(s => s.code === selectedSOP) || manual.workflowSOPs[0];
   }, [manual.workflowSOPs, selectedSOP]);
 
-  const tabs: { id: SOPTab; label: string; icon: React.ReactNode; badge?: string }[] = [
+    const tabs: { id: SOPTab; label: string; icon: React.ReactNode; badge?: string }[] = [
     { id: 'overview', label: '1. Purpose & Authority', icon: <BookOpen className="w-4 h-4" /> },
-    { id: 'scope', label: '2. Scope Guardrails', icon: <Scale className="w-4 h-4" />, badge: 'Strict' },
-    { id: 'workflow', label: '3. 10-Step Workflow', icon: <FileText className="w-4 h-4" />, badge: '4.1–4.10' },
-    { id: 'escalation', label: '4. Crisis Escalation', icon: <AlertTriangle className="w-4 h-4" /> },
-    { id: 'mandatory', label: '5. Mandatory Reporting', icon: <ShieldCheck className="w-4 h-4" />, badge: 'MS Law' },
-    { id: 'audit', label: '6. Chart Auditing', icon: <Award className="w-4 h-4" /> },
-    { id: 'ethics', label: '7. Code of Ethics', icon: <HeartHandshake className="w-4 h-4" /> },
-    { id: 'quiz', label: 'Staff Scope Quiz', icon: <HelpCircle className="w-4 h-4" />, badge: 'Test' },
+    { id: 'sop18', label: '2. All 18 SOPs', icon: <ListOrdered className="w-4 h-4" />, badge: 'SOP 01–18' },
+    { id: 'scope', label: '3. Scope Guardrails', icon: <Scale className="w-4 h-4" />, badge: 'Strict' },
+    { id: 'workflow', label: '4. 10-Step Workflow', icon: <FileText className="w-4 h-4" />, badge: 'Workflow' },
+    { id: 'pricing', label: '5. Programs & Prices', icon: <DollarSign className="w-4 h-4" /> },
+    { id: 'escalation', label: '6. Crisis Escalation', icon: <AlertTriangle className="w-4 h-4" /> },
+    { id: 'mandatory', label: '7. Mandatory Reporting', icon: <ShieldCheck className="w-4 h-4" />, badge: 'MS Law' },
+    { id: 'audit', label: '8. Quality Auditing', icon: <Award className="w-4 h-4" /> },
+    { id: 'ethics', label: '9. Code of Ethics', icon: <HeartHandshake className="w-4 h-4" /> },
+    { id: 'appendix', label: 'App. A–E Open Items', icon: <Info className="w-4 h-4" />, badge: 'Legal' },
+    { id: 'quiz', label: 'Scope Quiz', icon: <HelpCircle className="w-4 h-4" />, badge: 'Test' },
   ];
 
   return (
@@ -141,8 +147,19 @@ export const SOPManualScreen: React.FC<SOPManualScreenProps> = ({
               </div>
             </div>
 
-            {/* Quick action buttons */}
+                        {/* Quick action buttons */}
             <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <a
+                href={manual.pdfAssetPath}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-2 rounded-xl bg-olive hover:bg-olive/90 text-white font-semibold text-xs shadow-xs flex items-center gap-1.5 transition-all"
+                title="View original revised SOP Guide PDF (October 2026)"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>View Revised PDF</span>
+              </a>
+
               <button
                 onClick={() => window.print()}
                 className="px-3.5 py-2 rounded-xl bg-white hover:bg-sage-50 text-pecan-800 font-semibold text-xs border border-sage-200 shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
@@ -162,9 +179,9 @@ export const SOPManualScreen: React.FC<SOPManualScreenProps> = ({
 
               <button
                 onClick={() => onNavigateToScreen('operations')}
-                className="px-3.5 py-2 rounded-xl bg-olive hover:bg-olive/90 text-white font-semibold text-xs shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-sage-200/80 hover:bg-sage-200 text-pecan-900 font-semibold text-xs shadow-xs flex items-center gap-1.5 transition-all cursor-pointer border border-sage-300"
               >
-                <ShieldCheck className="w-3.5 h-3.5" />
+                <ShieldCheck className="w-3.5 h-3.5 text-olive" />
                 <span>Operations Hub</span>
               </button>
             </div>
@@ -378,7 +395,68 @@ export const SOPManualScreen: React.FC<SOPManualScreenProps> = ({
           </div>
         )}
 
-        {/* TAB 2: SCOPE GUARDRAILS (APPROVED VS PROHIBITED) */}
+        
+        {/* TAB 2: COMPLETE 18 STANDARD OPERATING PROCEDURES (SOP-01 THROUGH SOP-18) */}
+        {activeTab === 'sop18' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-sage-200 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div>
+                  <div className="flex items-center gap-2 text-olive font-bold text-xs uppercase tracking-wider mb-1">
+                    <ListOrdered className="w-4 h-4" />
+                    <span>Revised Standard Operating Procedures Manual (Revision 2)</span>
+                  </div>
+                  <h2 className="font-serif text-xl sm:text-2xl font-bold text-pecan-900">
+                    All 18 Standard Operating Procedures (SOP-01 to SOP-18)
+                  </h2>
+                  <p className="text-xs sm:text-sm text-pecan-600 mt-1">
+                    Exact operational procedures from the October 2026 revised SOP Guide governing all Pine Belt care navigation.
+                  </p>
+                </div>
+                <div className="text-xs text-pecan-700 bg-sage-50 px-3 py-1.5 rounded-xl border border-sage-200 self-start sm:self-auto font-semibold">
+                  18 Standardized Protocols
+                </div>
+              </div>
+
+              {/* Grid of all 18 SOPs */}
+              <div className="space-y-4 mt-6">
+                {manual.allSOPs.map((sop, idx) => (
+                  <div key={sop.number} className="p-5 rounded-2xl bg-[#FDFBF7] border border-sage-200/90 shadow-2xs hover:border-olive/40 transition-colors">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-sage-200/70 mb-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="px-2.5 py-1 rounded-xl bg-olive text-white font-bold text-xs">
+                          {sop.number}
+                        </span>
+                        <h3 className="font-serif font-bold text-base text-pecan-900">
+                          {sop.title}
+                        </h3>
+                      </div>
+                      <span className="text-[11px] font-bold text-olive uppercase tracking-wider bg-olive/10 px-2.5 py-0.5 rounded-full self-start sm:self-auto">
+                        {sop.category}
+                      </span>
+                    </div>
+
+                    <div className="mb-3">
+                      <span className="text-xs font-bold text-pecan-700 uppercase tracking-wide">Purpose: </span>
+                      <span className="text-xs text-pecan-800 italic">{sop.purpose}</span>
+                    </div>
+
+                    <div className="space-y-2">
+                      {sop.points.map((pt, pIdx) => (
+                        <div key={pIdx} className="text-xs text-pecan-900 flex items-start gap-2 leading-relaxed bg-white/70 p-2.5 rounded-xl border border-sage-100">
+                          <span className="text-olive font-bold mt-0.5 shrink-0">•</span>
+                          <span>{pt}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: SCOPE GUARDRAILS (APPROVED VS PROHIBITED) */}
         {activeTab === 'scope' && (
           <div className="space-y-6">
             
@@ -742,7 +820,62 @@ export const SOPManualScreen: React.FC<SOPManualScreenProps> = ({
           </div>
         )}
 
-        {/* TAB 4: CRISIS ESCALATION PROTOCOLS */}
+        
+        {/* TAB 5: PROGRAMS, PRICES & SERVICE AREA */}
+        {activeTab === 'pricing' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-sage-200 shadow-xs">
+              <div className="flex items-center gap-2 text-olive font-bold text-xs uppercase tracking-wider mb-1">
+                <DollarSign className="w-4 h-4" />
+                <span>Part II: Pricing & Service Structure</span>
+              </div>
+              <h2 className="font-serif text-xl sm:text-2xl font-bold text-pecan-900 mb-1">
+                Programs, Prices and Service Area (Controlling Price Sheet)
+              </h2>
+              <p className="text-xs sm:text-sm text-pecan-600 mb-6">
+                SouthernWell is private-pay only. In-person service covers Forrest, Lamar, Jones and Stone Counties; clients 75–100 miles away are served via Telephonic Program.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {manual.pricingPrograms.map((pr, idx) => (
+                  <div key={idx} className="p-5 rounded-2xl bg-sage-50/60 border border-sage-200 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="font-bold text-sm text-pecan-900">{pr.name}</span>
+                        {pr.badge && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-olive text-white">
+                            {pr.badge}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-pecan-700 leading-relaxed mb-4">
+                        {pr.targetOrSummary}
+                      </p>
+                    </div>
+                    <div className="pt-3 border-t border-sage-200/80 flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-pecan-600">Rate / Fee:</span>
+                      <span className="text-xs font-bold text-olive">{pr.price}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Service Area Notice */}
+              <div className="mt-6 p-4 rounded-2xl bg-[#FDFBF7] border border-sage-200 text-xs text-pecan-800 space-y-1.5">
+                <div className="font-bold text-pecan-900 flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-olive" />
+                  <span>Approved Service Area & Payment Channels</span>
+                </div>
+                <p>• <strong>Primary 4-County Catchment:</strong> Forrest County (Hattiesburg), Lamar County (Purvis / Oak Grove), Jones County (Laurel / Ellisville), and Stone County (Wiggins). Note: Harrison, Jackson, and Pearl River were retired in October 2026.</p>
+                <p>• <strong>Telephonic Services:</strong> Clients 75 to 100 miles from Hattiesburg Hub.</p>
+                <p>• <strong>Accepted Payment Methods:</strong> Credit/debit card, ACH bank draft, Cash App, PayPal, Zelle, or invoice. Billed privately; does not bill Medicare/Medicaid.</p>
+                <p>• <strong>LCSW Separation:</strong> Clinical mental health services provided by independent Consulting LCSW are billed completely separately under her own license with zero referral fees.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 6: CRISIS ESCALATION PROTOCOLS */}
         {activeTab === 'escalation' && (
           <div className="space-y-6">
             
@@ -1149,7 +1282,96 @@ export const SOPManualScreen: React.FC<SOPManualScreenProps> = ({
           </div>
         )}
 
-        {/* TAB 8: INTERACTIVE SCOPE QUIZ */}
+        
+        {/* TAB 10: APPENDIX A–E & OPEN ITEMS FOR OWNER / LEGAL */}
+        {activeTab === 'appendix' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-sage-200 shadow-xs">
+              <div className="flex items-center gap-2 text-olive font-bold text-xs uppercase tracking-wider mb-1">
+                <Info className="w-4 h-4" />
+                <span>Appendix D & Governance</span>
+              </div>
+              <h2 className="font-serif text-xl sm:text-2xl font-bold text-pecan-900 mb-1">
+                Appendix D: Open Items for Owner and Legal Decision
+              </h2>
+              <p className="text-xs sm:text-sm text-pecan-600 mb-6">
+                Active decision items identified in Revision 2 requiring owner confirmation or formal legal review prior to final operational deployment.
+              </p>
+
+              <div className="space-y-3">
+                {manual.openItemsAppendixD.map((item) => (
+                  <div key={item.itemNumber} className="p-4 rounded-2xl bg-[#FDFBF7] border border-sage-200 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <span className="w-7 h-7 rounded-xl bg-olive text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                        #{item.itemNumber}
+                      </span>
+                      <div>
+                        <h4 className="font-bold text-sm text-pecan-900">
+                          {item.item}
+                        </h4>
+                        <p className="text-xs text-pecan-700 mt-1 leading-relaxed">
+                          <strong>Why It Matters:</strong> {item.whyItMatters}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-200 shrink-0 self-start sm:self-auto">
+                      Legal / Owner Review
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Revision Log Box */}
+              <div className="mt-8 pt-6 border-t border-sage-200">
+                <h3 className="font-serif font-bold text-base text-pecan-900 mb-3 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-olive" />
+                  <span>Appendix C: Formal Revision Log</span>
+                </h3>
+                <div className="space-y-3">
+                  <div className="p-4 rounded-2xl bg-sage-50/60 border border-sage-200 text-xs">
+                    <div className="flex items-center justify-between mb-1.5 font-bold text-pecan-900">
+                      <span>October 2026 (Revision 2 - Current)</span>
+                      <span className="text-olive">Author: Jasmeen Williams, LPN, BS-HHS</span>
+                    </div>
+                    <p className="text-pecan-800 leading-relaxed mb-2">
+                      <strong>Alignment:</strong> Service area corrected to Forrest, Lamar, Jones and Stone; programs and prices updated to Essentials, Signature, Concierge, add-ons and Telephonic Program; Senior Navigation removed; SteadyCare naming adopted; Rose Pink removed from palette in favor of Deep Pecan.<br />
+                      <strong>Intake:</strong> SOP-02 and SOP-03 rebuilt around the 10-step Workflow Manual, two gates (Gate 1 Enrollment Complete, Gate 2 Ready to Start), authority to sign, four-test fit decision, capacity cap (15-20 clients), and waitlist. Psychosocial intake retired from SouthernWell scope.<br />
+                      <strong>Safety & Practice:</strong> SOP-07 adds provider-directed parameters; SOP-10 defines missed check-in attempts and 2-hour welfare check; SOP-05 adds lone-worker check-in; SOP-06 adds strict never-touch rule and exception handling.<br />
+                      <strong>New Chapters:</strong> SOP-17 Client Rights, Concerns and Complaints; SOP-18 Discharge, Transition and Record Closure; Appendix D Open Items.
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-[#FAF8F5] border border-sage-200 text-xs text-pecan-700">
+                    <div className="flex items-center justify-between font-bold text-pecan-900 mb-1">
+                      <span>September 2026 (Revision 1)</span>
+                      <span>Owner Initial Draft</span>
+                    </div>
+                    <p>Initial SOP draft; non-clinical wording updated; brand identity palette integrated.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Appendix E Brand Standards */}
+              <div className="mt-6 p-4 rounded-2xl bg-sage-50/70 border border-sage-200 text-xs text-pecan-800">
+                <h4 className="font-serif font-bold text-sm text-pecan-900 mb-2">
+                  Appendix E: Brand Identity & Document Standards
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-[11px] font-semibold">
+                  <div className="p-2 rounded-xl bg-[#556B2F] text-white">Olive Green<br />#556B2F</div>
+                  <div className="p-2 rounded-xl bg-[#8A9A86] text-white">Sage<br />#8A9A86</div>
+                  <div className="p-2 rounded-xl bg-[#FDFBF7] text-pecan-900 border border-sage-300">Magnolia Cream<br />#FDFBF7</div>
+                  <div className="p-2 rounded-xl bg-[#9EAB84] text-pecan-900">Sweetgrass<br />#9EAB84</div>
+                  <div className="p-2 rounded-xl bg-[#4A3B32] text-white">Deep Pecan<br />#4A3B32</div>
+                </div>
+                <p className="mt-2 text-center text-pecan-700 font-serif italic">
+                  Tagline: "Supporting Healing. Strengthening Families." (Phone: 601-554-6067)
+                </p>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* TAB 11: INTERACTIVE SCOPE QUIZ */}
         {activeTab === 'quiz' && (
           <div className="space-y-6">
             

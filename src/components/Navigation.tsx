@@ -7,19 +7,23 @@ import {
   Compass, 
   CreditCard, 
   Printer, 
-  ShieldCheck,
-  ChevronDown,
-  UserPlus,
-  Users,
-  Check,
-  CheckCircle2,
-  Clock,
-  Activity,
-  FileText
+  ShieldCheck, 
+  ChevronDown, 
+  UserPlus, 
+  Users, 
+  Check, 
+  CheckCircle2, 
+  Clock, 
+  Activity, 
+  FileText,
+  Rocket,
+  FileSpreadsheet,
+  QrCode,
+  Heart
 } from 'lucide-react';
 import { ClientProfile } from '../types';
 
-export type ScreenTab = 'handbook' | 'hub' | 'operations' | 'forms' | 'sop' | 'prep' | 'meds' | 'resources' | 'billing';
+export type ScreenTab = 'handbook' | 'hub' | 'operations' | 'forms' | 'sop' | 'prep' | 'meds' | 'resources' | 'billing' | 'porchfund';
 
 interface NavigationProps {
   activeScreen: ScreenTab;
@@ -29,6 +33,10 @@ interface NavigationProps {
   onSelectClient: (clientId: string) => void;
   onOpenOnboardModal: () => void;
   onOpenSignModal: () => void;
+  isLiveMode?: boolean;
+  onOpenGoLiveModal?: () => void;
+  onOpenGoogleSheetModal?: () => void;
+  onOpenQRModal?: () => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
@@ -39,6 +47,10 @@ export const Navigation: React.FC<NavigationProps> = ({
   onSelectClient,
   onOpenOnboardModal,
   onOpenSignModal,
+  isLiveMode = true,
+  onOpenGoLiveModal,
+  onOpenGoogleSheetModal,
+  onOpenQRModal,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -63,6 +75,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     { id: 'meds', label: 'Medication Safety', icon: <Pill className="w-4 h-4" /> },
     { id: 'resources', label: 'South MS Resources', icon: <Compass className="w-4 h-4" /> },
     { id: 'billing', label: 'Billing & Payments', icon: <CreditCard className="w-4 h-4" /> },
+    { id: 'porchfund', label: 'Granny Doris Fund', icon: <Heart className="w-4 h-4 text-rose-600 fill-rose-100" />, badge: 'Flyer' },
   ];
 
   const getInitials = (fullName: string) => {
@@ -94,7 +107,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                   SouthernWell
                 </span>
                 <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-olive-50 text-olive border border-olive/20">
-                  South Mississippi SOP 3.4
+                  SOP Revision 2 · Pine Belt, MS
                 </span>
               </div>
               <p className="text-[11px] text-pecan-600 hidden md:block">
@@ -229,6 +242,36 @@ export const Navigation: React.FC<NavigationProps> = ({
                     <button
                       onClick={() => {
                         setIsDropdownOpen(false);
+                        if (onOpenGoogleSheetModal) onOpenGoogleSheetModal();
+                      }}
+                      className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-emerald-200"
+                    >
+                      <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-700" />
+                      <span>Google Sheet Master Register</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        if (onOpenGoLiveModal) onOpenGoLiveModal();
+                      }}
+                      className="w-full py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-amber-200"
+                    >
+                      <Rocket className="w-3.5 h-3.5 text-amber-700" />
+                      <span>Launch & Go-Live Center</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        onSelectScreen('porchfund');
+                      }}
+                      className="w-full py-2 px-3 rounded-xl bg-rose-50/80 hover:bg-rose-100 text-rose-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-rose-200"
+                    >
+                      <Heart className="w-3.5 h-3.5 text-rose-600 fill-rose-200" />
+                      <span>The Granny Doris Porch Fund</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
                         onOpenOnboardModal();
                       }}
                       className="w-full py-2 px-3 rounded-xl bg-olive-50 hover:bg-olive-100 text-olive font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-olive/20"
@@ -240,6 +283,56 @@ export const Navigation: React.FC<NavigationProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Launch / Go-Live Status & Button */}
+            {onOpenGoLiveModal && (
+              <button
+                onClick={onOpenGoLiveModal}
+                className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl text-xs font-bold transition-all shadow-2xs cursor-pointer ${
+                  isLiveMode
+                    ? 'bg-emerald-700 hover:bg-emerald-800 text-white'
+                    : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'
+                }`}
+                title="Launch & Go-Live Operations Center"
+              >
+                <Rocket className={`w-3.5 h-3.5 ${isLiveMode ? 'text-emerald-200' : 'text-amber-800'}`} />
+                <span className="hidden sm:inline">{isLiveMode ? 'Live Mode' : 'Go Live'}</span>
+              </button>
+            )}
+
+            {/* Google Sheet Master Register */}
+            {onOpenGoogleSheetModal && (
+              <button
+                onClick={onOpenGoogleSheetModal}
+                className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-2xl bg-white hover:bg-sage-50 text-pecan-800 border border-sage-200 transition-colors font-bold shadow-2xs cursor-pointer text-xs"
+                title="View & Sync Google Sheet Master Register"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-700" />
+                <span>Google Sheet</span>
+              </button>
+            )}
+
+            {/* QR Pass */}
+            {onOpenQRModal && (
+              <button
+                onClick={onOpenQRModal}
+                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl bg-white hover:bg-sage-50 text-pecan-800 border border-sage-200 transition-colors font-bold shadow-2xs cursor-pointer text-xs"
+                title="View & Print Assigned QR Code Pass"
+              >
+                <QrCode className="w-3.5 h-3.5 text-olive" />
+                <span className="hidden sm:inline">QR Pass</span>
+              </button>
+            )}
+
+            {/* Direct Add Client Quick Button */}
+            <button
+              onClick={onOpenOnboardModal}
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl bg-olive text-white hover:bg-olive-700 transition-colors font-bold shadow-xs cursor-pointer text-xs"
+              title="Onboard and add a new client to SouthernWell"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">+ Add Client</span>
+            </button>
 
             {/* Signed status indicator */}
             <button

@@ -16,6 +16,10 @@ import { ClientFormsPacketScreen } from './components/ClientFormsPacketScreen';
 import { SOPManualScreen } from './components/SOPManualScreen';
 import { SignatureModal } from './components/SignatureModal';
 import { OnboardClientModal } from './components/OnboardClientModal';
+import { LaunchGoLiveModal } from './components/LaunchGoLiveModal';
+import { GoogleSheetSyncModal } from './components/GoogleSheetSyncModal';
+import { PatientQRCodeModal } from './components/PatientQRCodeModal';
+import { PorchFundScreen } from './components/PorchFundScreen';
 import { 
   INITIAL_CLIENT_RECORDS,
   MOCK_RESOURCES 
@@ -28,6 +32,12 @@ export default function App() {
   const [activeClientId, setActiveClientId] = useState<string>(INITIAL_CLIENT_RECORDS[0].client.id);
   const [isSignModalOpen, setIsSignModalOpen] = useState(false);
   const [isOnboardModalOpen, setIsOnboardModalOpen] = useState(false);
+  const [isGoLiveModalOpen, setIsGoLiveModalOpen] = useState(false);
+  const [isGoogleSheetModalOpen, setIsGoogleSheetModalOpen] = useState(false);
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+  const [isLiveMode, setIsLiveMode] = useState<boolean>(() => {
+    return localStorage.getItem('sw_is_live_mode') !== 'false';
+  });
   const [selectedPrepAptId, setSelectedPrepAptId] = useState<string | undefined>(undefined);
 
   // Active client record and data slices
@@ -200,6 +210,10 @@ export default function App() {
         onSelectClient={handleSelectClient}
         onOpenOnboardModal={() => setIsOnboardModalOpen(true)}
         onOpenSignModal={() => setIsSignModalOpen(true)}
+        isLiveMode={isLiveMode}
+        onOpenGoLiveModal={() => setIsGoLiveModalOpen(true)}
+        onOpenGoogleSheetModal={() => setIsGoogleSheetModalOpen(true)}
+        onOpenQRModal={() => setIsQRModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -223,6 +237,10 @@ export default function App() {
             }}
             onNavigateToBilling={() => {
               setActiveScreen('billing');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onNavigateToPorchFund={() => {
+              setActiveScreen('porchfund');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           />
@@ -253,6 +271,12 @@ export default function App() {
             }}
             onNavigateToSOP={() => {
               setActiveScreen('sop');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onOpenQRModal={() => setIsQRModalOpen(true)}
+            onOpenGoogleSheet={() => setIsGoogleSheetModalOpen(true)}
+            onNavigateToPorchFund={() => {
+              setActiveScreen('porchfund');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           />
@@ -302,6 +326,12 @@ export default function App() {
             }}
             onUpdateClient={handleUpdateClientById}
             onDeleteClient={handleDeleteClientById}
+            onOpenQRModalForClient={(clientId) => {
+              setActiveClientId(clientId);
+              setIsQRModalOpen(true);
+            }}
+            onOpenGoogleSheet={() => setIsGoogleSheetModalOpen(true)}
+            onOpenGoLive={() => setIsGoLiveModalOpen(true)}
           />
         )}
 
@@ -363,6 +393,21 @@ export default function App() {
             client={client}
             invoices={invoices}
             onPayInvoice={handlePayInvoice}
+            onNavigateToPorchFund={() => {
+              setActiveScreen('porchfund');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+
+        {activeScreen === 'porchfund' && (
+          <PorchFundScreen
+            client={client}
+            onNavigateToScreen={(screen) => {
+              setActiveScreen(screen);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onOpenGoogleSheet={() => setIsGoogleSheetModalOpen(true)}
           />
         )}
       </div>
@@ -380,6 +425,54 @@ export default function App() {
         isOpen={isOnboardModalOpen}
         onClose={() => setIsOnboardModalOpen(false)}
         onAddClient={handleAddClient}
+      />
+
+      {/* Launch & Go-Live Operations Modal */}
+      <LaunchGoLiveModal
+        isOpen={isGoLiveModalOpen}
+        onClose={() => setIsGoLiveModalOpen(false)}
+        isLiveMode={isLiveMode}
+        onToggleLiveMode={(live) => setIsLiveMode(live)}
+        clientRecords={clientRecords}
+        onOpenGoogleSheet={() => {
+          setIsGoLiveModalOpen(false);
+          setIsGoogleSheetModalOpen(true);
+        }}
+        onOpenOnboardModal={() => {
+          setIsGoLiveModalOpen(false);
+          setIsOnboardModalOpen(true);
+        }}
+      />
+
+      {/* Google Sheet Master Register Modal */}
+      <GoogleSheetSyncModal
+        isOpen={isGoogleSheetModalOpen}
+        onClose={() => setIsGoogleSheetModalOpen(false)}
+        clientRecords={clientRecords}
+        onBatchSynced={() => {
+          const nowStr = new Date().toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+          });
+          setClientRecords(prev => prev.map(rec => ({
+            ...rec,
+            client: {
+              ...rec.client,
+              googleSheetSynced: true,
+              googleSheetSyncedAt: nowStr,
+            }
+          })));
+        }}
+      />
+
+      {/* Patient QR Scan Pass Modal */}
+      <PatientQRCodeModal
+        isOpen={isQRModalOpen}
+        onClose={() => setIsQRModalOpen(false)}
+        client={client}
       />
 
     </div>

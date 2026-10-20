@@ -14,7 +14,8 @@ import {
   HeartHandshake, 
   Sparkles,
   ChevronDown,
-  FileText
+  FileText,
+  Heart
 } from 'lucide-react';
 import { ClientProfile } from '../types';
 
@@ -29,6 +30,7 @@ interface HandbookScreenProps {
   onNavigateToMedSafety?: () => void;
   onNavigateToResources?: () => void;
   onNavigateToBilling?: () => void;
+  onNavigateToPorchFund?: () => void;
 }
 
 export const HandbookScreen: React.FC<HandbookScreenProps> = ({
@@ -42,6 +44,7 @@ export const HandbookScreen: React.FC<HandbookScreenProps> = ({
   onNavigateToMedSafety,
   onNavigateToResources,
   onNavigateToBilling,
+  onNavigateToPorchFund,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [completedSections, setCompletedSections] = useState<Record<string, boolean>>({
@@ -1023,6 +1026,39 @@ export const HandbookScreen: React.FC<HandbookScreenProps> = ({
               </div>
 
             </section>
+          )}
+
+          {/* The Granny Doris Porch Fund Community Scholarship */}
+          {matchesSearch('granny doris porch fund scholarship sliding scale assistance financial hardship discount free') && (
+            <div className="bg-rose-50/70 p-6 rounded-2xl border border-rose-200 mt-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-rose-100 border border-rose-300 flex items-center justify-center shrink-0 mt-0.5">
+                  <Heart className="w-5 h-5 text-rose-600 fill-rose-300" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-serif font-bold text-lg text-rose-950">The Granny Doris Porch Fund</h3>
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-rose-200 text-rose-900 border border-rose-300">
+                      Community Aid & Scholarship
+                    </span>
+                  </div>
+                  <p className="text-xs text-rose-900 leading-relaxed max-w-2xl">
+                    “No one should have to choose between care and cost. When a neighbor needs help, we make room on the porch.” 
+                    Providing <strong>100% free care coordination</strong> for families living below the poverty line, and <strong>50% off monthly packages</strong> after your first 6 months.
+                  </p>
+                </div>
+              </div>
+
+              {onNavigateToPorchFund && (
+                <button
+                  onClick={onNavigateToPorchFund}
+                  className="shrink-0 px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Heart className="w-3.5 h-3.5 fill-rose-200" />
+                  <span>View Flyer & Nominate</span>
+                </button>
+              )}
+            </div>
           )}
 
           {/* Signature & Acceptance Block (Client Handbook Confirmation) */}
